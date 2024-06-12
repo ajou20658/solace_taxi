@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: payment
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://free.czucyuiocfxn.ap-northeast-2.rds.amazonaws.com:3306/solace?useUnicode=true&characterEncoding=utf-8
+#    username: solace
+#    password: passwordsolace
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop
+#    show-sql: false
+#    open-in-view: false
+
+solace:
+  username: gwangbu_Payment
+  password: passwordpayment
+  host: mr-connection-hcnx0u899eb.messaging.solace.cloud
+  port: 55555
+  vpn: aiot
+server:
+  port: 8083
+#logging:
+#  level:
+#    org.springframework: DEBUG

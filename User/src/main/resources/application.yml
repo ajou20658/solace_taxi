@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: User
+
+solace:
+  username: gwangbu_User
+  password: user
+  host: mr-connection-hcnx0u899eb.messaging.solace.cloud
+  port: 55555
+  vpn: aiot
+
