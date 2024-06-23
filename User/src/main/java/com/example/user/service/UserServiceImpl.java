@@ -31,15 +31,26 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void rideRequest() throws JCSMPException {
+        Location current = Location.getRandomLocation();
+        Location destination = Location.getRandomLocation();
         RideRequest request = new RideRequest();
         request.setUserId(initiator.getUserId());
-        request.setDestination(Location.getRandomLocation());
-        request.setCurrentLocation(Location.getRandomLocation());
+        request.setCurrentLocation(current);
+        while (destination == current) {
+            destination = Location.getRandomLocation();
+        }
+        request.setDestination(destination);
         TextMessage textMessage = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
         textMessage.setDeliveryMode(DeliveryMode.PERSISTENT);
+        textMessage.setTimeToLive(10000L);
         try {
             sendTopic(textMessage,request,rideRequestTopic);
-            System.out.printf("[택시호출]\nuserId : %s\n출발지 : %s\n목적지 : %s\n"
+            System.out.printf("""
+                    [택시호출]
+                    * userId : %s
+                    * 출발지 : %s
+                    * 목적지 : %s
+                    """
                     ,request.getUserId(),request.getCurrentLocation(),request.getDestination());
         }catch (IOException ex){
             log.error(ex.getMessage());
@@ -54,12 +65,20 @@ public class UserServiceImpl implements UserService{
     @Override
     public void handlePaymentRequest(PaymentRequest paymentRequest){
         try{
-            System.out.println("정산요청이 도착하였습니다.");
-            System.out.printf("*서비스 유형 : [%s]\n*결제 금액 : [%d]",
+            System.out.printf("""
+                    [정산 요청 도착]
+                    * 서비스 유형 : %s
+                    * 결제 금액 : %d원
+                    """,
                     paymentRequest.getServiceType(),
                     paymentRequest.getCost());
             // Yes 하면 큐에서 빼고, NO하면 큐에 남아있도록
-            System.out.print("결제 승인(YES / NO)");
+            System.out.print("""
+                    * 결제 승인
+                    * YES - 카드 결제
+                    * NO - 결제 재시도
+                    * CASH - 현금 결제
+                    > """);
             String textInput = bufferedReader.readLine();
             if(textInput.equals("NO")){
                 throw new RuntimeException();

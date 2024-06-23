@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class Initiator {
-    private final Location location;
+    private Location location;
     private final String userId;
     public Initiator(){
         this.location = Location.getRandomLocation();

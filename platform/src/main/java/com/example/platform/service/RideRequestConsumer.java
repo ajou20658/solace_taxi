@@ -29,7 +29,10 @@ public class RideRequestConsumer {
             EndpointProperties endpointProperties = new EndpointProperties();
             endpointProperties.setPermission(EndpointProperties.PERMISSION_CONSUME);
             endpointProperties.setAccessType(EndpointProperties.ACCESSTYPE_EXCLUSIVE);
+            endpointProperties.setRespectsMsgTTL(true);
+
             ConsumerFlowProperties flowProperties = new ConsumerFlowProperties();
+            flowProperties.addRequiredSettlementOutcomes(XMLMessage.Outcome.FAILED);
             flowProperties.setEndpoint(queue);
             flowProperties.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
             session.provision(queue,endpointProperties,JCSMPSession.FLAG_IGNORE_ALREADY_EXISTS);
@@ -39,17 +42,19 @@ public class RideRequestConsumer {
                     if (bytesXMLMessage instanceof TextMessage message) {
                         log.info(message.getText());
                         try {
-//                            ObjectMapper objectMapper = new ObjectMapper();
-//                            log.info("bytesXMLMessage : ",bytesXMLMessage);
                             RideRequest request = objectMapper.readValue(message.getText().getBytes(), RideRequest.class);
-//                            log.info("잘 받았어: " + request.toString());
-
                             platformService.RideRequest2PickupRequest(request);
                             bytesXMLMessage.ackMessage();
                         } catch (JCSMPException ex) {
                             log.error(ex.getMessage());
                         } catch (IOException e) { // JSON 처리 중 발생할 수 있는 예외 처리
                             log.error("JSON 변환 오류: " + e.getMessage());
+                        } catch (RuntimeException e){
+                            try {
+                                bytesXMLMessage.settle(XMLMessage.Outcome.FAILED);
+                            }catch (JCSMPException ex){
+                                log.error(ex.getMessage());
+                            }
                         }
                     }
                 }

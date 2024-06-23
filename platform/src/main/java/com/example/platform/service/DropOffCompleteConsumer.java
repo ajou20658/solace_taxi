@@ -29,6 +29,7 @@ public class DropOffCompleteConsumer {
             endpointProperties.setAccessType(EndpointProperties.ACCESSTYPE_EXCLUSIVE);
 
             ConsumerFlowProperties consumerFlowProperties = new ConsumerFlowProperties();
+            consumerFlowProperties.addRequiredSettlementOutcomes(XMLMessage.Outcome.FAILED);
             consumerFlowProperties.setEndpoint(queue);
             consumerFlowProperties.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
             session.provision(queue,endpointProperties,JCSMPSession.FLAG_IGNORE_ALREADY_EXISTS);
@@ -42,6 +43,12 @@ public class DropOffCompleteConsumer {
                             bytesXMLMessage.ackMessage();
                         }catch (IOException ex){
                             log.error("JSON 변환 오류: "+ ex.getMessage());
+                        }catch (JCSMPException ex){
+                            try {
+                                bytesXMLMessage.settle(XMLMessage.Outcome.FAILED);
+                            } catch (JCSMPException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     }
                 }

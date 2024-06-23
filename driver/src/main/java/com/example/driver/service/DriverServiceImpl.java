@@ -52,10 +52,10 @@ public class DriverServiceImpl implements DriverService{
             PickupResponse response = new PickupResponse();
 
             try{
-                System.out.println("택시 호출 발생");
-                System.out.println("1. 승객 위치 :"+pickupRequest.getCurrentLocation());
-                System.out.println("2. 목적지 :"+pickupRequest.getDestination());
-                System.out.print("수락하시겠습니까 (YES or NO)?");
+                System.out.println("[택시 호출 발생]");
+                System.out.println("* 승객 위치: "+pickupRequest.getCurrentLocation());
+                System.out.println("* 목적지: "+pickupRequest.getDestination());
+                System.out.print("> 수락하시겠습니까 (YES or NO)? : ");
                 String textResponse = reader.readLine();
                 if(textResponse.equals("YES")){
                     response.setResult(true);
@@ -80,11 +80,17 @@ public class DriverServiceImpl implements DriverService{
                 log.error(ex.getMessage());
             }finally {
                 if(response.isResult()){
-                    log.info("태우러 갈게");
+                    System.out.printf("""
+                    [탑승 수락]
+                    * 호출 번호: %s
+                    """,response.getRideId());
                 }else {
-                    log.info("안 태울래");
+                    System.out.printf("""
+                            [탑승 거부]
+                            * 호출 번호: %s
+                            """,response.getRideId());
                 }
-                System.out.println("요청 응답 완료");
+                log.debug("요청 응답 완료");
             }
         }
     }
@@ -102,7 +108,7 @@ public class DriverServiceImpl implements DriverService{
         // 메세지 전송
         try{
             SDTMap sdtMap = producer.createMap();
-            sdtMap.putString("driver",initiator.getDriverId());
+            sdtMap.putString(initiator.getDriverId(),"");
             textMessage.setProperties(sdtMap);
             sendTopic(textMessage,driverLocation,locationUpdateTopic);
         }catch (IOException | JCSMPException ex){
@@ -146,7 +152,10 @@ public class DriverServiceImpl implements DriverService{
         }
         //손님 내렸으니 한가해
         setIdle();
-        System.out.println("목적지 도착");
+        System.out.println("""
+        [목적지 도착]
+        IDLE 상태로 변환
+        """);
     }
 //    private void sendQueue(TextMessage textMessage,Object object, Queue queue) throws JsonProcessingException, JCSMPException {
 //        String text = objectMapper.writeValueAsString(object);

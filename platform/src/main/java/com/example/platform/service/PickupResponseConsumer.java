@@ -62,7 +62,12 @@ public class PickupResponseConsumer {
         }
     }
     private void resolveResponse(PickupResponse pickupResponse) throws JCSMPException{
-        log.info("[{}] 운전자 ID:{}, 요청 수락 여부:{}"
+        System.out.printf("""
+                [택시 매칭 정보]
+                * 매칭 번호: %s
+                * 기사 번호: %s
+                * 현재 위치: %s
+                """
                 ,pickupResponse.getRideId(),pickupResponse.getDriveId(),pickupResponse.isResult());
         ServiceLog serviceLog = jpaService.findByRideId(pickupResponse.getRideId());
         // ServiceLog에 저장 운전자 정보 반영 필요

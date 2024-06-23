@@ -2,11 +2,13 @@ package com.example.platform.config;
 
 import com.solacesystems.jcsmp.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 @Configuration
+@Slf4j
 @RequiredArgsConstructor
 public class SolaceConfig {
     private final Environment env;
@@ -21,7 +23,7 @@ public class SolaceConfig {
         properties.setProperty(JCSMPProperties.CLIENT_NAME,"gwangbu_platform");
         JCSMPSession session = JCSMPFactory.onlyInstance().createSession(properties);
         session.connect();
-        System.out.println("Session Connected : "+ session);
+        log.info("Session Connected : "+ session);
         return session;
     }
     @Bean

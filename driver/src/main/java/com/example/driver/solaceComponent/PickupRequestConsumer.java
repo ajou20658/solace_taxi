@@ -33,7 +33,7 @@ public class PickupRequestConsumer {
                         log.info(textMessage.getText());
                         try{
                             PickupRequest pickupRequest = objectMapper.readValue(textMessage.getText().getBytes(), PickupRequest.class);
-                            log.info("PickupRequest : {}",pickupRequest);
+//                            log.info("PickupRequest : {}",pickupRequest);
                             driverService.pickupRequest2Response(pickupRequest);
                             bytesXMLMessage.ackMessage();
                         }catch (IOException ex){
@@ -51,7 +51,7 @@ public class PickupRequestConsumer {
             );
             String driverTopic = PICKUP_PREFIX+initiator.getDriverId();
             Topic topic = JCSMPFactory.onlyInstance().createTopic(driverTopic);
-            log.info("subTopic from platform : {}",driverTopic);
+//            log.info("subTopic from platform : {}",driverTopic);
             session.addSubscription(topic);
             consumer.start();
         }catch (JCSMPException ex){

@@ -34,12 +34,13 @@ public class PaymentConsumer {
             EndpointProperties endpointProperties = new EndpointProperties();
             endpointProperties.setPermission(EndpointProperties.PERMISSION_CONSUME);
             endpointProperties.setAccessType(EndpointProperties.ACCESSTYPE_NONEXCLUSIVE);
+            endpointProperties.setMaxMsgRedelivery(10);
 //            endpointProperties.
             String userId = initiator.getUserId();
 
             ConsumerFlowProperties consumerFlowProperties = new ConsumerFlowProperties();
             consumerFlowProperties.setEndpoint(queue);
-
+            consumerFlowProperties.addRequiredSettlementOutcomes(XMLMessage.Outcome.FAILED, XMLMessage.Outcome.REJECTED);
             consumerFlowProperties.setAckMode(JCSMPProperties.SUPPORTED_MESSAGE_ACK_CLIENT);
             consumerFlowProperties.setSelector("user = '" + userId + "'");
             session.provision(queue,endpointProperties,JCSMPSession.FLAG_IGNORE_ALREADY_EXISTS);
@@ -47,14 +48,27 @@ public class PaymentConsumer {
                 @Override
                 public void onReceive(BytesXMLMessage bytesXMLMessage) {
                     if(bytesXMLMessage instanceof TextMessage textMessage){
-                        try{
+                        int result = -1;
+                        try {
                             PaymentRequest paymentRequest = objectMapper.readValue(textMessage.getText().getBytes(), PaymentRequest.class);
                             userService.handlePaymentRequest(paymentRequest);
-                            bytesXMLMessage.ackMessage();
+                            result = 1;
                         }catch (IOException ex){
                             log.error("JSON 변환 오류: "+ ex.getMessage());
+                            result = 2;
                         }catch (RuntimeException ex){
-                            log.error("결제 거부. 재결제 요청 발생");
+                            result = 3;
+                        }
+                        try{
+                            if (result == 1){
+                                bytesXMLMessage.ackMessage();
+                            } else if (result == 2) {
+                                bytesXMLMessage.settle(XMLMessage.Outcome.REJECTED);
+                            } else {
+                                bytesXMLMessage.settle(XMLMessage.Outcome.FAILED);
+                            }
+                        }catch (JCSMPException ex){
+                            log.error("JCSMP 예외 발생");
                         }
                     }
                 }

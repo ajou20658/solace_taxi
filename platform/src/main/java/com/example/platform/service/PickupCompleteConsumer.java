@@ -40,7 +40,12 @@ public class PickupCompleteConsumer {
                         try{
                             PickupComplete pickupComplete  = objectMapper.readValue(textMessage.getText().getBytes(), PickupComplete.class);
                             String rideId = jpaService.findByDriverId(pickupComplete.getDriverId()).getRideId();
-                            log.info("[RideId: {}] 픽업 완료.",rideId);
+                            System.out.printf("""
+                            [택시 픽업 완료]
+                            * 매칭 번호: %s
+                            * 기사 번호: %s
+                            * 탑승 위치: %s
+                            """,rideId,pickupComplete.getDriverId(),pickupComplete.getLocation());
                             bytesXMLMessage.ackMessage();
                         }catch (IOException ex){
                             log.error("JSON 변환 오류: "+ ex.getMessage());

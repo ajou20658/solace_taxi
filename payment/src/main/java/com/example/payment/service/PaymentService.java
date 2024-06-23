@@ -16,21 +16,25 @@ public class PaymentService {
     private final XMLMessageProducer producer;
     private final ObjectMapper objectMapper;
     private final String payTopic = "gwangbu/PaymentQueue";
-//    private final Queue queue = JCSMPFactory.onlyInstance().createQueue(payTopic);
     private final Topic topic = JCSMPFactory.onlyInstance().createTopic(payTopic);
     public void sendCustomerPayment(PaymentRequest paymentRequest){
         TextMessage textMessage = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
         textMessage.setDeliveryMode(DeliveryMode.DIRECT);
         try{
             SDTMap map = producer.createMap();
-            map.putString("user",paymentRequest.getUserId());
+            map.putString(paymentRequest.getUserId(),paymentRequest.getTimestamp().toString());
             textMessage.setProperties(map);
             PaymentRequest2User paymentRequest2User = new PaymentRequest2User();
             paymentRequest2User.setCost(paymentRequest.getCost());
             paymentRequest2User.setServiceType(paymentRequest.getServiceType());
             paymentRequest2User.setTimestamp(paymentRequest.getTimestamp());
             sendTopic(textMessage,paymentRequest2User,topic);
-            log.info("[결제 요청 전달] UserId:{}, Cost:{}, ServiceType : {}"
+            System.out.printf("""
+                    [결제 요청 전달]
+                    * UserId: %s
+                    * Cost: %d
+                    * ServiceType : %s
+                    """
                     ,paymentRequest.getUserId(),paymentRequest.getCost(),paymentRequest.getServiceType());
         }catch (JCSMPException ex){
             log.error(ex.getMessage());
@@ -38,11 +42,6 @@ public class PaymentService {
             log.error(ex.getMessage());
         }
     }
-//    private void sendQueue(TextMessage textMessage, Object object, Queue queue) throws JCSMPException, JsonProcessingException {
-//        String text = objectMapper.writeValueAsString(object);
-//        textMessage.setText(text);
-//        producer.send(textMessage,queue);
-//    }
     private void sendTopic(TextMessage textMessage, Object object, Topic topic) throws JCSMPException, JsonProcessingException {
         String text = objectMapper.writeValueAsString(object);
         textMessage.setText(text);

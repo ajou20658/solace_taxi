@@ -40,8 +40,16 @@ public class LocationUpdateConsumer {
 //                        log.info(textMessage.getText());
                         try{
                             DriverInfo request = objectMapper.readValue(textMessage.getText().getBytes(), DriverInfo.class);
-                            log.info("[DriverId: {}] 현재 위치 : {}, 현재 상태 : {}"
-                                    ,request.getDriverId(),request.getLocation(),request.getStatus());
+//                            log.info("[DriverId: {}] 현재 위치 : {}, 현재 상태 : {}"
+//                                    ,request.getDriverId(),request.getLocation(),request.getStatus());
+                            System.out.printf(
+                                    """
+                                    [택시 정보]
+                                    택시 번호: %s
+                                    현재 위치: %s
+                                    현재 상태: %s
+                                    """
+                            ,request.getDriverId(),request.getLocation(),request.getStatus());
                             taxiService.addService(request);
                             bytesXMLMessage.ackMessage();
                         } catch (IOException ex){

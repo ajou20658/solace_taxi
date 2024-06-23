@@ -7,8 +7,7 @@ import com.example.platform.vo.RideRequest;
 import com.solacesystems.jcsmp.JCSMPException;
 
 public interface PlatformService {
-    void init();
     void RideRequest2PickupRequest(RideRequest rideRequest) throws JCSMPException;
     void sendRideResponse(PickupResponse pickupResponse) throws JCSMPException;
-    void sendPaymentRequest(DropoffComplete dropoffComplete);
+    void sendPaymentRequest(DropoffComplete dropoffComplete) throws JCSMPException;
 }

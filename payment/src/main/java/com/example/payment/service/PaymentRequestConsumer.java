@@ -37,7 +37,7 @@ public class PaymentRequestConsumer {
                     if(bytesXMLMessage instanceof TextMessage textMessage){
                         try{
                             PaymentRequest paymentRequest = objectMapper.readValue(textMessage.getText().getBytes(), PaymentRequest.class);
-                            log.info(paymentRequest.toString());
+//                            log.info(paymentRequest.toString());
                             paymentService.sendCustomerPayment(paymentRequest);
                             bytesXMLMessage.ackMessage();
                         }catch (IOException ex){

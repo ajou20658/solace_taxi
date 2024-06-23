@@ -48,7 +48,7 @@ public class JpaService {
         }
     }
     public ServiceLog findByDriverId(String driverId){
-        Optional<ServiceLog> serviceLog = logRepository.findTopByDriverId(driverId);
+        Optional<ServiceLog> serviceLog = logRepository.findTopByDriverIdOrderByTimestampDesc(driverId);
         if(serviceLog.isEmpty()){
             log.error("Not exists");
             return null;

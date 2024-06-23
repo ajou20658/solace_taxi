@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 public class PaymentRequest {
     private Integer cost;
     private String serviceType;
+    private String rideId;
     private Timestamp timestamp;
 
 }

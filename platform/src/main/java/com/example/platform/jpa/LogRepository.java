@@ -9,4 +9,5 @@ public interface LogRepository extends JpaRepository<ServiceLog,String> {
 //    Optional<ServiceLog> findFirstByUserIdOrderByTimestamp(String userId);
     Optional<ServiceLog> findTopByUserIdAndRideIdOrderByTimestampAsc(String userId,String rideId);
     Optional<ServiceLog> findTopByDriverId(String driverId);
+    Optional<ServiceLog> findTopByDriverIdOrderByTimestampDesc(String driverId);
 }
